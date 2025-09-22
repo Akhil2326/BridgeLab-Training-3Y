@@ -1,0 +1,89 @@
+import java.util.Scanner;
+
+public class FactorOperations {
+
+    // Method to find factors of a number and return them in an array
+    public static int[] findFactors(int number) {
+        int count = 0;
+
+        // First loop: Count the factors
+        for (int i = 1; i <= number; i++) {
+            if (number % i == 0) {
+                count++;
+            }
+        }
+
+        // Initialize the array with the count
+        int[] factors = new int[count];
+        int index = 0;
+
+        // Second loop: Store the factors in the array
+        for (int i = 1; i <= number; i++) {
+            if (number % i == 0) {
+                factors[index++] = i;
+            }
+        }
+
+        return factors;
+    }
+
+    // Method to calculate sum of factors
+    public static int sumOfFactors(int[] factors) {
+        int sum = 0;
+        for (int factor : factors) {
+            sum += factor;
+        }
+        return sum;
+    }
+
+    // Method to calculate product of factors
+    public static long productOfFactors(int[] factors) {
+        long product = 1;
+        for (int factor : factors) {
+            product *= factor;
+        }
+        return product;
+    }
+
+    // Method to calculate sum of squares of factors
+    public static double sumOfSquaresOfFactors(int[] factors) {
+        double sumSquares = 0;
+        for (int factor : factors) {
+            sumSquares += Math.pow(factor, 2);
+        }
+        return sumSquares;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Take input from user
+        System.out.print("Enter a positive integer: ");
+        int number = scanner.nextInt();
+
+        if (number <= 0) {
+            System.out.println("Please enter a positive integer greater than zero.");
+        } else {
+            // Find factors
+            int[] factors = findFactors(number);
+
+            // Display factors
+            System.out.print("Factors: ");
+            for (int factor : factors) {
+                System.out.print(factor + " ");
+            }
+            System.out.println();
+
+            // Calculate and display sum, product and sum of squares
+            int sum = sumOfFactors(factors);
+            long product = productOfFactors(factors);
+            double sumSquares = sumOfSquaresOfFactors(factors);
+
+            System.out.println("Sum of factors: " + sum);
+            System.out.println("Product of factors: " + product);
+            System.out.println("Sum of squares of factors: " + sumSquares);
+        }
+
+        scanner.close();
+    }
+}
