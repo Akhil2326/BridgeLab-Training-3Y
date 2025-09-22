@@ -1,0 +1,182 @@
+import java.util.ArrayList;
+import java.util.List;
+
+// Interface for MedicalRecord
+interface MedicalRecord {
+    void addRecord(String record);
+    List<String> viewRecords();
+}
+
+// Abstract Patient class
+abstract class Patient {
+    private String patientId;
+    private String name;
+    private int age;
+
+    public Patient(String patientId, String name, int age) {
+        this.patientId = patientId;
+        this.name = name;
+        this.age = age;
+    }
+
+    // Encapsulation: getters and setters
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        if(age > 0) {
+            this.age = age;
+        }
+    }
+
+    // Concrete method to get patient details
+    public String getPatientDetails() {
+        return String.format("Patient ID: %s, Name: %s, Age: %d", patientId, name, age);
+    }
+
+    // Abstract method to calculate bill
+    public abstract double calculateBill();
+}
+
+// InPatient subclass
+class InPatient extends Patient implements MedicalRecord {
+    private int daysAdmitted;
+    private double dailyRate;
+    private List<String> medicalHistory = new ArrayList<>();
+
+    public InPatient(String patientId, String name, int age, int daysAdmitted, double dailyRate) {
+        super(patientId, name, age);
+        this.daysAdmitted = daysAdmitted;
+        this.dailyRate = dailyRate;
+    }
+
+    public int getDaysAdmitted() {
+        return daysAdmitted;
+    }
+
+    public void setDaysAdmitted(int daysAdmitted) {
+        if(daysAdmitted >= 0) {
+            this.daysAdmitted = daysAdmitted;
+        }
+    }
+
+    public double getDailyRate() {
+        return dailyRate;
+    }
+
+    public void setDailyRate(double dailyRate) {
+        if(dailyRate >= 0) {
+            this.dailyRate = dailyRate;
+        }
+    }
+
+    // Bill = days admitted * daily rate + fixed admission fee (say 500)
+    @Override
+    public double calculateBill() {
+        return (daysAdmitted * dailyRate) + 500;
+    }
+
+    // MedicalRecord interface methods
+    @Override
+    public void addRecord(String record) {
+        medicalHistory.add(record);
+    }
+
+    @Override
+    public List<String> viewRecords() {
+        return new ArrayList<>(medicalHistory); // return copy for encapsulation
+    }
+}
+
+// OutPatient subclass
+class OutPatient extends Patient implements MedicalRecord {
+    private int numberOfVisits;
+    private double visitCharge;
+    private List<String> medicalHistory = new ArrayList<>();
+
+    public OutPatient(String patientId, String name, int age, int numberOfVisits, double visitCharge) {
+        super(patientId, name, age);
+        this.numberOfVisits = numberOfVisits;
+        this.visitCharge = visitCharge;
+    }
+
+    public int getNumberOfVisits() {
+        return numberOfVisits;
+    }
+
+    public void setNumberOfVisits(int numberOfVisits) {
+        if(numberOfVisits >= 0) {
+            this.numberOfVisits = numberOfVisits;
+        }
+    }
+
+    public double getVisitCharge() {
+        return visitCharge;
+    }
+
+    public void setVisitCharge(double visitCharge) {
+        if(visitCharge >= 0) {
+            this.visitCharge = visitCharge;
+        }
+    }
+
+    // Bill = number of visits * visit charge
+    @Override
+    public double calculateBill() {
+        return numberOfVisits * visitCharge;
+    }
+
+    // MedicalRecord interface methods
+    @Override
+    public void addRecord(String record) {
+        medicalHistory.add(record);
+    }
+
+    @Override
+    public List<String> viewRecords() {
+        return new ArrayList<>(medicalHistory);
+    }
+}
+
+// Main class demonstrating polymorphism and encapsulation
+public class HospitalManagementDemo {
+    public static void main(String[] args) {
+        Patient[] patients = new Patient[] {
+            new InPatient("P001", "John Doe", 45, 10, 1500),
+            new OutPatient("P002", "Jane Smith", 30, 3, 500)
+        };
+
+        // Add some medical records
+        ((InPatient) patients[0]).addRecord("Diagnosed with pneumonia.");
+        ((InPatient) patients[0]).addRecord("Prescribed antibiotics.");
+
+        ((OutPatient) patients[1]).addRecord("Routine checkup - no issues.");
+
+        for (Patient p : patients) {
+            System.out.println(p.getPatientDetails());
+            System.out.printf("Total Bill: %.2f%n", p.calculateBill());
+
+            if (p instanceof MedicalRecord) {
+                MedicalRecord mr = (MedicalRecord) p;
+                System.out.println("Medical Records:");
+                for (String record : mr.viewRecords()) {
+                    System.out.println(" - " + record);
+                }
+            }
+            System.out.println();
+        }
+    }
+}
