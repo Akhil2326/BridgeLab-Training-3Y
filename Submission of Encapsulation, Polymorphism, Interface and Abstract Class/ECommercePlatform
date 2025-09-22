@@ -1,0 +1,141 @@
+// Interface for taxable products
+interface Taxable {
+    double calculateTax();
+    String getTaxDetails();
+}
+
+// Abstract Product class
+abstract class Product {
+    private String productId;
+    private String name;
+    private double price;
+
+    public Product(String productId, String name, double price) {
+        this.productId = productId;
+        this.name = name;
+        this.price = price;
+    }
+
+    // Getters and Setters with encapsulation
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        if(price >= 0) {
+            this.price = price;
+        }
+    }
+
+    // Abstract method for discount calculation
+    public abstract double calculateDiscount();
+}
+
+// Electronics class (taxable)
+class Electronics extends Product implements Taxable {
+    public Electronics(String productId, String name, double price) {
+        super(productId, name, price);
+    }
+
+    // Electronics discount: 10%
+    @Override
+    public double calculateDiscount() {
+        return getPrice() * 0.10;
+    }
+
+    // Electronics tax: 15%
+    @Override
+    public double calculateTax() {
+        return getPrice() * 0.15;
+    }
+
+    @Override
+    public String getTaxDetails() {
+        return "Electronics Tax (15%)";
+    }
+}
+
+// Clothing class (taxable)
+class Clothing extends Product implements Taxable {
+    public Clothing(String productId, String name, double price) {
+        super(productId, name, price);
+    }
+
+    // Clothing discount: 20%
+    @Override
+    public double calculateDiscount() {
+        return getPrice() * 0.20;
+    }
+
+    // Clothing tax: 10%
+    @Override
+    public double calculateTax() {
+        return getPrice() * 0.10;
+    }
+
+    @Override
+    public String getTaxDetails() {
+        return "Clothing Tax (10%)";
+    }
+}
+
+// Groceries class (non-taxable)
+class Groceries extends Product {
+    public Groceries(String productId, String name, double price) {
+        super(productId, name, price);
+    }
+
+    // Groceries discount: 5%
+    @Override
+    public double calculateDiscount() {
+        return getPrice() * 0.05;
+    }
+}
+
+// Main class to demonstrate polymorphism and final price calculation
+public class ECommercePlatform {
+    public static void printFinalPrices(Product[] products) {
+        for (Product p : products) {
+            double tax = 0;
+            String taxDetails = "No Tax";
+
+            if (p instanceof Taxable) {
+                Taxable taxableProduct = (Taxable) p;
+                tax = taxableProduct.calculateTax();
+                taxDetails = taxableProduct.getTaxDetails();
+            }
+
+            double discount = p.calculateDiscount();
+            double finalPrice = p.getPrice() + tax - discount;
+
+            System.out.printf("Product: %s, Price: %.2f, %s, Discount: %.2f, Final Price: %.2f%n",
+                    p.getName(), p.getPrice(), taxDetails, discount, finalPrice);
+        }
+    }
+
+    public static void main(String[] args) {
+        Product[] products = new Product[] {
+            new Electronics("E001", "Laptop", 1000),
+            new Clothing("C001", "T-Shirt", 50),
+            new Groceries("G001", "Apple", 2)
+        };
+
+        printFinalPrices(products);
+    }
+}
