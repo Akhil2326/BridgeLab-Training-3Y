@@ -1,0 +1,146 @@
+// Interface for discountable items
+interface Discountable {
+    void applyDiscount(double discountPercentage);
+    String getDiscountDetails();
+}
+
+// Abstract class FoodItem
+abstract class FoodItem {
+    private String itemName;
+    private double price;
+    private int quantity;
+
+    private double discount = 0; // discount amount applied
+
+    public FoodItem(String itemName, double price, int quantity) {
+        this.itemName = itemName;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    // Encapsulation: getters and setters
+    public String getItemName() {
+        return itemName;
+    }
+
+    // No setter for itemName to avoid changing item after creation
+
+    public double getPrice() {
+        return price;
+    }
+
+    // Price can be updated, e.g., if menu changes
+    public void setPrice(double price) {
+        if (price >= 0) this.price = price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    // Quantity can be updated if order changes
+    public void setQuantity(int quantity) {
+        if (quantity > 0) this.quantity = quantity;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    protected void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    // Abstract method to calculate total price including any extra charges
+    public abstract double calculateTotalPrice();
+
+    // Concrete method to get item details
+    public String getItemDetails() {
+        return String.format("%s - Price: %.2f, Quantity: %d", itemName, price, quantity);
+    }
+}
+
+// VegItem class
+class VegItem extends FoodItem implements Discountable {
+    public VegItem(String itemName, double price, int quantity) {
+        super(itemName, price, quantity);
+    }
+
+    @Override
+    public double calculateTotalPrice() {
+        // Veg items: total price = price * quantity - discount
+        return (getPrice() * getQuantity()) - getDiscount();
+    }
+
+    @Override
+    public void applyDiscount(double discountPercentage) {
+        if (discountPercentage > 0 && discountPercentage <= 100) {
+            double discountAmount = (getPrice() * getQuantity()) * (discountPercentage / 100);
+            setDiscount(discountAmount);
+        }
+    }
+
+    @Override
+    public String getDiscountDetails() {
+        return String.format("VegItem Discount: %.2f", getDiscount());
+    }
+}
+
+// NonVegItem class (extra 10% non-veg charge)
+class NonVegItem extends FoodItem implements Discountable {
+    private static final double NON_VEG_CHARGE_PERCENT = 0.10; // 10% extra charge
+
+    public NonVegItem(String itemName, double price, int quantity) {
+        super(itemName, price, quantity);
+    }
+
+    @Override
+    public double calculateTotalPrice() {
+        double basePrice = getPrice() * getQuantity();
+        double nonVegCharge = basePrice * NON_VEG_CHARGE_PERCENT;
+        return basePrice + nonVegCharge - getDiscount();
+    }
+
+    @Override
+    public void applyDiscount(double discountPercentage) {
+        if (discountPercentage > 0 && discountPercentage <= 100) {
+            double basePrice = getPrice() * getQuantity();
+            double discountAmount = basePrice * (discountPercentage / 100);
+            setDiscount(discountAmount);
+        }
+    }
+
+    @Override
+    public String getDiscountDetails() {
+        return String.format("NonVegItem Discount: %.2f", getDiscount());
+    }
+}
+
+// Main class demonstrating polymorphism
+public class FoodDeliverySystemDemo {
+    public static void processOrder(FoodItem[] items) {
+        for (FoodItem item : items) {
+            System.out.println(item.getItemDetails());
+
+            if (item instanceof Discountable) {
+                Discountable discountableItem = (Discountable) item;
+                discountableItem.applyDiscount(10); // apply 10% discount
+                System.out.println(discountableItem.getDiscountDetails());
+            }
+
+            double totalPrice = item.calculateTotalPrice();
+            System.out.printf("Total Price after discount and extra charges: %.2f%n%n", totalPrice);
+        }
+    }
+
+    public static void main(String[] args) {
+        FoodItem[] order = new FoodItem[] {
+            new VegItem("Paneer Tikka", 150, 2),
+            new NonVegItem("Chicken Curry", 250, 1),
+            new VegItem("Salad", 100, 3),
+            new NonVegItem("Fish Fry", 200, 2)
+        };
+
+        processOrder(order);
+    }
+}
