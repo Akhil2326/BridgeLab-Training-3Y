@@ -1,0 +1,151 @@
+// Interface for loanable accounts
+interface Loanable {
+    void applyForLoan(double amount);
+    boolean calculateLoanEligibility();
+}
+
+// Abstract BankAccount class
+abstract class BankAccount {
+    private String accountNumber;
+    private String holderName;
+    private double balance;
+
+    public BankAccount(String accountNumber, String holderName, double balance) {
+        this.accountNumber = accountNumber;
+        this.holderName = holderName;
+        this.balance = balance;
+    }
+
+    // Encapsulated getters and setters
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    // No setter for accountNumber to prevent changes
+
+    public String getHolderName() {
+        return holderName;
+    }
+
+    public void setHolderName(String holderName) {
+        this.holderName = holderName;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    // Deposit money into account
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            System.out.printf("%.2f deposited. New balance: %.2f%n", amount, balance);
+        } else {
+            System.out.println("Invalid deposit amount.");
+        }
+    }
+
+    // Withdraw money from account
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            System.out.printf("%.2f withdrawn. New balance: %.2f%n", amount, balance);
+        } else {
+            System.out.println("Invalid or insufficient funds for withdrawal.");
+        }
+    }
+
+    // Abstract method for interest calculation
+    public abstract double calculateInterest();
+}
+
+// SavingsAccount with interest rate 4%
+class SavingsAccount extends BankAccount implements Loanable {
+    private static final double INTEREST_RATE = 0.04; // 4% annual interest
+    private boolean loanApproved = false;
+
+    public SavingsAccount(String accountNumber, String holderName, double balance) {
+        super(accountNumber, holderName, balance);
+    }
+
+    @Override
+    public double calculateInterest() {
+        return getBalance() * INTEREST_RATE;
+    }
+
+    @Override
+    public void applyForLoan(double amount) {
+        if (calculateLoanEligibility()) {
+            loanApproved = true;
+            System.out.printf("Loan of %.2f approved for Savings Account %s%n", amount, getAccountNumber());
+        } else {
+            System.out.printf("Loan application denied for Savings Account %s%n", getAccountNumber());
+        }
+    }
+
+    @Override
+    public boolean calculateLoanEligibility() {
+        // Savings accounts eligible if balance >= 1000
+        return getBalance() >= 1000;
+    }
+}
+
+// CurrentAccount with interest rate 2%
+class CurrentAccount extends BankAccount implements Loanable {
+    private static final double INTEREST_RATE = 0.02; // 2% annual interest
+    private boolean loanApproved = false;
+
+    public CurrentAccount(String accountNumber, String holderName, double balance) {
+        super(accountNumber, holderName, balance);
+    }
+
+    @Override
+    public double calculateInterest() {
+        return getBalance() * INTEREST_RATE;
+    }
+
+    @Override
+    public void applyForLoan(double amount) {
+        if (calculateLoanEligibility()) {
+            loanApproved = true;
+            System.out.printf("Loan of %.2f approved for Current Account %s%n", amount, getAccountNumber());
+        } else {
+            System.out.printf("Loan application denied for Current Account %s%n", getAccountNumber());
+        }
+    }
+
+    @Override
+    public boolean calculateLoanEligibility() {
+        // Current accounts eligible if balance >= 5000
+        return getBalance() >= 5000;
+    }
+}
+
+// Main class to demonstrate polymorphism
+public class BankingSystemDemo {
+    public static void main(String[] args) {
+        BankAccount[] accounts = new BankAccount[] {
+            new SavingsAccount("SA123", "Alice", 2000),
+            new CurrentAccount("CA456", "Bob", 4000),
+            new SavingsAccount("SA789", "Charlie", 800)
+        };
+
+        double loanAmount = 10000;
+
+        for (BankAccount account : accounts) {
+            System.out.printf("Account %s belonging to %s has balance %.2f%n",
+                    account.getAccountNumber(), account.getHolderName(), account.getBalance());
+
+            double interest = account.calculateInterest();
+            System.out.printf("Calculated interest: %.2f%n", interest);
+
+            if (account instanceof Loanable) {
+                Loanable loanAccount = (Loanable) account;
+                loanAccount.applyForLoan(loanAmount);
+                System.out.println("Loan Eligibility: " + loanAccount.calculateLoanEligibility());
+            }
+
+            System.out.println();
+        }
+    }
+}
